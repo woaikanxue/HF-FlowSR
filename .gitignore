@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+*.pt
+*.pth
+*.ckpt
+*.npy
+*.wav
+*.flac
+model/
+log/
+results/
+outputs/
+.venv/
