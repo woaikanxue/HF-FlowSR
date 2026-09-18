@@ -1,16 +1,8 @@
 import json
 import torch
-import sys
-import os
-script_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(script_dir)
-vocoder_module_path = os.path.join(parent_dir, 'vocoder')
 
-
-sys.path.append(vocoder_module_path)
-
-from vocoder.BIGVGAN.bigvgan.models import BigVGAN
-from vocoder.BIGVGAN.bigvgan.env import AttrDict   
+from .third_party.bigvgan.models import BigVGAN
+from .third_party.bigvgan.env import AttrDict
 
 
 def init_bigvgan(config, checkpoint, vocoder_freeze=False):    

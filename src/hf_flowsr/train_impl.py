@@ -1,5 +1,4 @@
 import os
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -8,14 +7,12 @@ from torch.utils.tensorboard import SummaryWriter
 from torchinfo import summary
 
 EXPERIMENT_DIR = Path(__file__).resolve().parent
-REPO_ROOT = EXPERIMENT_DIR.parent
-sys.path.insert(0, str(EXPERIMENT_DIR))
-sys.path.insert(0, str(REPO_ROOT))
+REPO_ROOT = EXPERIMENT_DIR.parent.parent
 
-from data import AudioDataset
-from config_highband_cbtbridge_full import config as hparams
-from cfm_superresolution_highband import FLowHigh, MelVoco, ConditionalFlowMatcherWrapper
-from trainer_highband import FLowHighTrainer
+from .data import AudioDataset
+from .configs.cbt_full import config as hparams
+from .model import FLowHigh, MelVoco, ConditionalFlowMatcherWrapper
+from .trainer import FLowHighTrainer
 
 
 def count_parameters(model):
@@ -64,7 +61,7 @@ def resolve_experiment_path(path):
     path = Path(path)
     if path.is_absolute():
         return path
-    return EXPERIMENT_DIR / path
+    return REPO_ROOT / path
 
 
 def configure_preferred_cuda_device():

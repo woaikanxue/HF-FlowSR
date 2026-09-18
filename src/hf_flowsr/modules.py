@@ -21,7 +21,7 @@ from einops.layers.torch import Rearrange
 from einops import rearrange, repeat, reduce, pack, unpack
 
 # from voicebox_pytorch.attend import Attend
-from attend import Attend
+from .attend import Attend
 from gateloop_transformer import SimpleGateLoopLayer as GateLoop
 
 import numpy
@@ -602,4 +602,3 @@ def symlog(x: torch.Tensor) -> torch.Tensor:
 
 def symexp(x: torch.Tensor) -> torch.Tensor:
     return torch.sign(x) * (torch.exp(x.abs()) - 1)
-

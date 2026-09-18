@@ -1,77 +1,108 @@
-# CBTBridge audio super-resolution
+# HF-FlowSR CBTBridge-Full
 
-This folder is a small, standalone source package extracted from the local
-FLowHigh/HF-FlowSR workspace. It contains the **CBTBridge-Full** model,
-training, inference, and a single-model test using the `Review_one` unified
-signal and LSD protocol. It excludes other model backends, experiment logs,
-datasets, and pretrained weights.
+Research code for the CBTBridge-Full audio super-resolution model. This
+repository contains one model, its training and inference code, and an
+evaluation path based on the `Review_one` unified test protocol. Pretrained
+weights and datasets are distributed separately.
 
-## Setup
+## Repository layout
 
-Python 3.10 with CUDA is recommended for the pinned dependencies and this
-version of CBT/BigVGAN.
-
-```bash
-pip install -r requirements.txt
+```text
+src/hf_flowsr/
+  configs/             CBTBridge-Full architecture and training configuration
+  model.py             acoustic model, CBTBridge, and flow wrapper
+  modules.py           transformer and network components
+  train_impl.py        training loop assembly
+  trainer.py           optimization and validation
+  inference.py         shared prediction API
+  protocol.py          unified degradation and LSD functions
+  cli/                 train, infer, and evaluate commands
+  third_party/bigvgan/ bundled vocoder runtime and licenses
+docs/                  model card and evaluation protocol
+data/                  expected dataset layout
+checkpoints/           expected weight files
+tests/                 protocol regression checks
 ```
 
-Download or provide the CBT `best.pt` and 48 kHz BigVGAN
-`g_48_00850000` weights separately. The original local repository contains
-them at `Review_one/model/cbt/best.pt` and
-`vocoder/BIGVGAN/checkpoint/g_48_00850000`. Weights are excluded from this
-source package.
+## Install
+
+Use Python 3.10 and a CUDA capable PyTorch installation. The pinned package
+versions reflect the source research environment.
+
+```bash
+python -m pip install -e .
+```
+
+The CBT model checkpoint (`best.pt`) and 48 kHz BigVGAN checkpoint
+(`g_48_00850000`) are required for inference and evaluation. The original
+workspace stored them at `Review_one/model/cbt/best.pt` and
+`vocoder/BIGVGAN/checkpoint/g_48_00850000`. Pass local paths with the commands
+below; see [checkpoints/README.md](checkpoints/README.md).
 
 ## Train
 
-The data root should contain 48 kHz speech files in speaker folders. FLAC is
-the default; add `--audio-extension .wav` for WAV data. The
-original CBT training configuration is preserved in
-`cbt/config_highband_cbtbridge_full.py`; `train.py` replaces its local data
-and vocoder paths at runtime and starts training from scratch. The historical
-split seed and model settings remain in the config.
+Supply clean 48 kHz speech in speaker subdirectories. The default file type
+is FLAC; use `--audio-extension .wav` for WAV. The model and optimization
+settings are in [cbt_full.py](src/hf_flowsr/configs/cbt_full.py).
 
 ```bash
-python train.py --data-root /path/to/vctk_train --vocoder-checkpoint /path/to/g_48_00850000
+hf-flowsr-train \
+  --data-root /path/to/train_audio \
+  --vocoder-checkpoint /path/to/g_48_00850000 \
+  --output-dir runs/cbt_full
 ```
 
-Checkpoints and TensorBoard logs are written under `cbt/model/` and `cbt/log/`.
+The command starts CBTBridge-Full training from scratch. It writes checkpoints
+and TensorBoard logs below `--output-dir`. Use `--epochs` to change the number
+of epochs.
 
 ## Infer
 
-Input must be a mono or stereo 8, 12, 16, or 24 kHz WAV/FLAC file.
+Pass an 8, 12, 16, or 24 kHz WAV/FLAC file. The output is a 48 kHz float32
+WAV file.
 
 ```bash
-python infer.py --input low.wav --output restored.wav \
+hf-flowsr-infer \
+  --input low.wav --output restored.wav \
   --checkpoint /path/to/best.pt \
   --vocoder-checkpoint /path/to/g_48_00850000
 ```
 
-Add `--waveform-pp` for the optional low-band waveform anchor.
+Add `--waveform-pp` to apply the common low-band waveform anchor.
 
-## Test
+## Evaluate
 
-Supply a directory of clean 48 kHz WAV/FLAC files. For each file and input
-rate, the script creates the degraded input, runs CBT once, derives RAW and
-PP-on predictions, and writes float32 `.npy` caches plus `per_utterance.csv`.
+Supply clean 48 kHz WAV/FLAC references. The evaluator creates 8, 12, 16,
+and 24 kHz degraded inputs, runs CBT once for each rate, derives RAW and
+PP-on outputs from the same prediction, and writes float32 caches,
+`per_utterance.csv`, and a per-rate/equal-rate-macro `summary.csv`. Use
+`--limit 1` for a quick check.
 
 ```bash
-python test.py --audio-root /path/to/wave48_test \
+hf-flowsr-eval \
+  --audio-root /path/to/test_audio \
   --checkpoint /path/to/best.pt \
   --vocoder-checkpoint /path/to/g_48_00850000 \
-  --output-dir results
+  --output-dir results/cbt_full
 ```
 
-Use `--limit 1` for a quick run. Protocol details are in
-`protocol/EVALUATION_PROTOCOL.md`. The original official test manifest was not
-present locally, so this package does not label arbitrary test sets as the
-frozen paper benchmark.
+The evaluation rules are in
+[EVALUATION_PROTOCOL.md](docs/EVALUATION_PROTOCOL.md). The original workspace
+did not contain the frozen official test manifest CSV, so this command
+evaluates the files supplied by the user and does not label them as the exact
+paper benchmark.
+
+## Development checks
+
+```bash
+python -m unittest discover -s tests -v
+```
 
 ## Source and licenses
 
-CBT model/training code comes from the local FLowHigh/HF-FlowSR repository and
-is covered by the top-level MIT `LICENSE`. The bundled BigVGAN implementation
-is derived from [NVIDIA/BigVGAN](https://github.com/NVIDIA/BigVGAN) and has its
-own MIT license in `vocoder/BIGVGAN/LICENSE`. Its alias-free component is
-adapted from [alias-free-torch](https://github.com/junjun3518/alias-free-torch)
-under Apache 2.0; the license is bundled as
-`vocoder/BIGVGAN/alias_free_torch_LICENSE.txt`.
+The CBT code was extracted from the local HF-FlowSR research workspace and
+uses the top-level [MIT license](LICENSE). The bundled BigVGAN runtime comes
+from [NVIDIA/BigVGAN](https://github.com/NVIDIA/BigVGAN), with its license in
+`src/hf_flowsr/third_party/bigvgan/LICENSE`. Its alias-free component is
+derived from [alias-free-torch](https://github.com/junjun3518/alias-free-torch)
+under Apache 2.0; that license is included alongside the code.

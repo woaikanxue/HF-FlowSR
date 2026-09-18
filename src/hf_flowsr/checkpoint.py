@@ -1,17 +1,16 @@
-"""Checkpoint loader copied from the frozen Review_one CBT backend."""
+"""Construct CBTBridge-Full and load a model checkpoint."""
 from pathlib import Path
-import sys
 import torch
 
-HERE = Path(__file__).resolve().parent
-ROOT = HERE.parent
-sys.path.insert(0, str(ROOT))
-sys.path.insert(0, str(HERE))
-from cfm_superresolution_highband import FLowHigh, MelVoco, ConditionalFlowMatcherWrapper
+from .model import FLowHigh, MelVoco, ConditionalFlowMatcherWrapper
+
+ROOT = Path(__file__).resolve().parents[2]
 
 def resolve_path(path):
     path = Path(path)
     return path if path.is_absolute() else ROOT / path
+
+
 def build_cbt_model(config, checkpoint_path, device):
     data_cfg = config.data
     model_cfg = config.model

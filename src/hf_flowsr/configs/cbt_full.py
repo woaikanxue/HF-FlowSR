@@ -1,4 +1,4 @@
-from config_highband_full import FullHighbandConfig
+from .base import FullHighbandConfig
 
 
 config = FullHighbandConfig()

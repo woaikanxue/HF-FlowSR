@@ -6,8 +6,8 @@ from pathlib import Path
 import numpy as np
 import scipy.io.wavfile
 
-from protocol.audio_io import read_reference_pcm
-from protocol.formal_protocol import mono_float32, resample_poly_exact, waveform_lowband_anchor
+from ..audio_io import read_reference_pcm
+from ..protocol import mono_float32, resample_poly_exact, waveform_lowband_anchor
 
 
 def main():
@@ -24,7 +24,7 @@ def main():
     if input_sr not in (8000, 12000, 16000, 24000):
         raise ValueError("Input sample rate must be 8, 12, 16, or 24 kHz")
     lr_up = resample_poly_exact(mono_float32(audio), input_sr, 48000)
-    from cbt.runtime import load_model, predict
+    from ..inference import load_model, predict
     model, config = load_model(args.checkpoint, args.vocoder_checkpoint)
     output = predict(model, config, lr_up, input_sr, args.seed)
     output = output[:len(lr_up)] if len(output) >= len(lr_up) else np.pad(output, (0, len(lr_up) - len(output)))

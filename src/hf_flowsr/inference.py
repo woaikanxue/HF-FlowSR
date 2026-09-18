@@ -5,15 +5,15 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from .model_loader import build_cbt_model
+from .checkpoint import build_cbt_model
 
 
 def load_model(checkpoint: Path, vocoder_checkpoint: Path):
-    from .config_highband_cbtbridge_full import config
+    from .configs.cbt_full import config
 
-    root = Path(__file__).resolve().parents[1]
+    root = Path(__file__).resolve().parent
     config.model.vocoderpath = str(vocoder_checkpoint.resolve())
-    config.model.vocoderconfigpath = str(root / "vocoder/BIGVGAN/config/bigvgan_48khz_256band_config.json")
+    config.model.vocoderconfigpath = str(root / "third_party/bigvgan/config.json")
     if not torch.cuda.is_available():
         raise RuntimeError("This CBT/BigVGAN implementation requires CUDA")
     model, _ = build_cbt_model(config, checkpoint.resolve(), torch.device("cuda"))

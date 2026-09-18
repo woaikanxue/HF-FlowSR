@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hf-flowsr-cbt"
+version = "0.1.0"
+description = "CBTBridge audio super-resolution model and unified evaluation protocol"
+readme = "README.md"
+requires-python = ">=3.10,<3.11"
+license = {file = "LICENSE"}
+dynamic = ["dependencies"]
+
+[project.scripts]
+hf-flowsr-train = "hf_flowsr.cli.train:main"
+hf-flowsr-infer = "hf_flowsr.cli.infer:main"
+hf-flowsr-eval = "hf_flowsr.cli.evaluate:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.package-data]
+"hf_flowsr.third_party.bigvgan" = ["config.json", "LICENSE", "LICENSE-ALIAS-FREE.txt"]

@@ -12,4 +12,13 @@ model/
 log/
 results/
 outputs/
+runs/
+data/*
+!data/README.md
+checkpoints/*
+!checkpoints/README.md
 .venv/
+build/
+dist/
+dist_check/
+*.egg-info/

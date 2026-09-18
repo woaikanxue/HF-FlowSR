@@ -2,12 +2,13 @@
 
 import argparse
 import csv
+from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
 
-from protocol.audio_io import read_reference_pcm
-from protocol.formal_protocol import (
+from ..audio_io import read_reference_pcm
+from ..protocol import (
     compute_lsd_metrics, make_lr_up, match_length, mono_float32,
     resolve_inference_seed, sha256_file, waveform_lowband_anchor,
 )
@@ -33,7 +34,7 @@ def main():
     if not files:
         raise FileNotFoundError(f"No WAV/FLAC files under {root}")
 
-    from cbt.runtime import load_model, predict
+    from ..inference import load_model, predict
     model, config = load_model(args.checkpoint, args.vocoder_checkpoint)
     output_dir = args.output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -63,7 +64,26 @@ def main():
         writer = csv.DictWriter(handle, fieldnames=list(records[0]))
         writer.writeheader()
         writer.writerows(records)
+    metric_names = [name for name in records[0] if name not in {"file", "input_sr", "seed", "condition"}]
+    groups = defaultdict(list)
+    for record in records:
+        groups[(record["condition"], record["input_sr"])].append(record)
+    summary = []
+    for (condition, input_sr), group in sorted(groups.items()):
+        summary.append({"condition": condition, "input_sr": input_sr,
+                        "num_utterances": len(group),
+                        **{name: float(np.mean([row[name] for row in group])) for name in metric_names}})
+    for condition in sorted({row["condition"] for row in summary}):
+        rate_rows = [row for row in summary if row["condition"] == condition]
+        summary.append({"condition": condition, "input_sr": "macro",
+                        "num_utterances": len(files),
+                        **{name: float(np.mean([row[name] for row in rate_rows])) for name in metric_names}})
+    with (output_dir / "summary.csv").open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(summary[0]))
+        writer.writeheader()
+        writer.writerows(summary)
     print(output_dir / "per_utterance.csv")
+    print(output_dir / "summary.csv")
 
 
 if __name__ == "__main__":

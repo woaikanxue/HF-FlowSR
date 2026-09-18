@@ -1,7 +1,8 @@
 # CBT test protocol (from `Review_one`)
 
-`formal_protocol.py` and `audio_io.py` are copied from the source repository's
-`Review_one` unified test protocol. `test.py` uses these functions directly.
+`src/hf_flowsr/protocol.py` and `src/hf_flowsr/audio_io.py` are copied from
+the source repository's `Review_one` unified test protocol. The
+`hf-flowsr-eval` command uses these functions directly.
 
 - Reference: mono float32 PCM, 48 kHz; no peak or RMS normalization.
 - Input rates: 8, 12, 16, 24 kHz.
@@ -12,7 +13,7 @@
 - LSD: Hann STFT, FFT/window 2048, hop 512, log10 power floor `1e-8`. High-band split uses `int((2048//2+1)*input_sr/48000)`.
 - Alignment: none. Metrics consume float32 waveforms.
 
-`test.py` evaluates whatever 48 kHz WAV/FLAC files the user supplies. The source
+`hf-flowsr-eval` evaluates whatever 48 kHz WAV/FLAC files the user supplies. The source
 repository's frozen official manifest CSV is absent from the local `Review_one`
 directory, so this standalone test is a protocol-compatible evaluation, not a
 claim of reproducing the exact 2,346-file paper test set.

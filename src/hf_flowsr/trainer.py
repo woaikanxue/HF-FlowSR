@@ -13,10 +13,10 @@ from torch.optim.lr_scheduler import CosineAnnealingLR, LambdaLR
 from torch.utils.data import Dataset, random_split, Subset
 
 
-from cfm_superresolution_highband import ConditionalFlowMatcherWrapper
-from utils import STFTMag
-from data import get_dataloader
-from optimizer import get_optimizer
+from .model import ConditionalFlowMatcherWrapper
+from .utils import STFTMag
+from .data import get_dataloader
+from .optimizer import get_optimizer
 
 from accelerate import Accelerator, DistributedType
 from accelerate.utils import DistributedDataParallelKwargs
@@ -26,7 +26,7 @@ import random
 import torchaudio
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
-from utils import plot_tensor, save_plot_
+from .utils import plot_tensor, save_plot_
 from einops import rearrange
 from scipy.signal import sosfiltfilt, cheby1, resample, resample_poly
 from scipy.io.wavfile import write

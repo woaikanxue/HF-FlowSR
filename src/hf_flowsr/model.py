@@ -18,13 +18,13 @@ from einops import rearrange, repeat, reduce, pack, unpack
 import torchaudio.transforms as T
 from torchaudio.functional import resample
 from librosa.filters import mel as librosa_mel_fn
-from utils import sequence_mask
+from .utils import sequence_mask
 import numpy
 import matplotlib.pyplot as plt
-from modules import LearnedSinusoidalPosEmb, ConvPositionEmbed, Transformer, ConvNeXtBlock, Attention, FeedForward
-from modules import RotaryEmbedding, RMSNorm, AdaptiveRMSNorm, GateLoop
-from postprocessing import PostProcessing
-from init_vocoder import init_bigvgan
+from .modules import LearnedSinusoidalPosEmb, ConvPositionEmbed, Transformer, ConvNeXtBlock, Attention, FeedForward
+from .modules import RotaryEmbedding, RMSNorm, AdaptiveRMSNorm, GateLoop
+from .postprocessing import PostProcessing
+from .vocoder import init_bigvgan
 
 LOGGER = logging.getLogger(__file__)
 logging.basicConfig(filename='model_debug.log', level=logging.INFO)

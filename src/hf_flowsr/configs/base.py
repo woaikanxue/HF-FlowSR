@@ -97,9 +97,9 @@ class ModelConfig:
     # vocoder 类型；当前使用 BigVGAN。
     vocoder: str = "bigvgan"
     # BigVGAN checkpoint 路径。
-    vocoderpath: str = "vocoder/BIGVGAN/checkpoint/g_48_00850000"
+    vocoderpath: str = ""
     # BigVGAN config json 路径。
-    vocoderconfigpath: str = "vocoder/BIGVGAN/config/bigvgan_48khz_256band_config.json"
+    vocoderconfigpath: str = ""
 
 
 @dataclass
