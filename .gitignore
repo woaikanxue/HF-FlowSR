@@ -2,8 +2,6 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .mypy_cache/
-*.pt
-*.pth
 *.ckpt
 *.npy
 *.wav
@@ -15,10 +13,10 @@ outputs/
 runs/
 data/*
 !data/README.md
-checkpoints/*
-!checkpoints/README.md
 .venv/
 build/
 dist/
 dist_check/
 *.egg-info/
+checkpoints/*
+

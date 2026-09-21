@@ -2593,7 +2593,7 @@ class ConditionalFlowMatcherWrapper(Module):
         # x1.shape = cond.shape = x0.shape = w.shape = flow.shape = [Batch, Time, mel_bin]
         
         # Training mode!
-        self.flowhigh.train()
+        self.flowhigh.train(self.training)
 
         # Cut a small segment of mel-spectrogram
         cond_lengths = cond_lengths.to(torch.int32)
